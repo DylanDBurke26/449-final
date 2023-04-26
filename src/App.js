@@ -1,25 +1,32 @@
-import logo from './logo.svg';
+import { render } from '@testing-library/react';
 import './App.css';
+import React, { useState, useEffect } from 'react';
+
+
+function GetWoWCharacter() {
+  const [character, setter] = useState(null);
+
+  useEffect(() => {
+  fetch("https://raider.io/api/v1/characters/profile?region=us&realm=Area%2052&name=ecckle")
+  .then(response => response.json())
+  .then(data => setter(data.thumbnail_url))
+  },[])
+  console.log(1);  
+  return (
+    <div>
+       {character && <img src={character}></img>}
+    </div>
+  );
+}
+
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <link href="/dist/output.css" rel="stylesheet"/>
+      <GetWoWCharacter/>
     </div>
   );
-}
+  }
 
 export default App;
