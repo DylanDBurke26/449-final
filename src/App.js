@@ -9,6 +9,7 @@ import { CategoryScale } from 'chart.js';
 // https://react-chartjs-2.js.org/faq/registered-scale/
 Chart.register(CategoryScale);
 
+// https://react-chartjs-2.js.org/examples/line-chart
 const options = {
   scales: {
     y: {
@@ -62,15 +63,13 @@ function Crypto(args) {
     const times = data.map(t => (t.time));
     const closes = data.map(c => c.close);
 
-    // https://www.tutorialrepublic.com/faq/how-to-convert-a-unix-timestamp-to-time-in-javascript.php#:~:text=Answer%3A%20Use%20the%20new%20Date,%3A00%3A00%20UTC).
+    // https://www.tutorialrepublic.com/faq/how-to-convert-a-unix-timestamp-to-time-in-javascript.php#:~:text=Answer%3A%20Use%20the%20new%20Date,%3A00%3A00%20UTC
     // used to convert unix time to date format
     for (let i = 0; i < times.length; i++) {
       times[i] = (new Date(times[i] * 1000)).toLocaleDateString("en-US");
     }
 
-    
-    
-
+    // https://react-chartjs-2.js.org/examples/line-chart
     const d = {
       labels : times,
       datasets : [
@@ -78,7 +77,7 @@ function Crypto(args) {
           label: args.args[2],
           data: closes,
           fill : true,
-          borderColor: 'rgba(75,192,1)',
+          borderColor: 'rgb(75,192,1)',
           color: 'white',
         }
       ]
@@ -111,8 +110,6 @@ function Exchange(args) {
   },[]);
 
   try {
-    // https://stackoverflow.com/questions/14014371/how-do-i-convert-a-string-into-an-executable-line-of-code-in-javascript/70896574#70896574
-    // where i got the idea to use eval() to display the currency symbol
     const conversion = data[args.args[0]]['usd'];
     
     return (
