@@ -7,6 +7,7 @@ import {Line} from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 import { CategoryScale } from 'chart.js';
 
+// https://react-chartjs-2.js.org/faq/registered-scale/
 Chart.register(CategoryScale);
 
 const options = {
@@ -26,7 +27,7 @@ const options = {
   plugins: {
     title: {
       display: true,
-      text: 'My Chart Title',
+      text: '',
       color:'white'
     }
   }
@@ -37,30 +38,11 @@ function Crypto(args) {
   const [data, setter] = useState(null);
   const [arg, argSet] = useState(args.args[0]);
 
+  let newOptions = options;
   
   const changeNumber = (number, timeFrame) => {
     argSet(number);
-    // options.plugins.title.text = `${args.args[2]} ${timeFrame}`;
-
-    console.log(args.args[3]);
-
-    if (timeFrame === `weekly${args.args[3]}`) {
-      document.getElementById(timeFrame).style.border = "solid white";
-      document.getElementById(`monthly${args.args[3]}`).style.border = "none";
-      document.getElementById(`ytd${args.args[3]}`).style.border = "none";
-    }
-
-    if (timeFrame === `monthly${args.args[3]}`) {
-      document.getElementById(timeFrame).style.border = "solid white";
-      document.getElementById(`weekly${args.args[3]}`).style.border = "none";
-      document.getElementById(`ytd${args.args[3]}`).style.border = "none";
-    }
-
-    if (timeFrame === `ytd${args.args[3]}`) {
-      document.getElementById(timeFrame).style.border = "solid white";
-      document.getElementById(`weekly${args.args[3]}`).style.border = "none";
-      document.getElementById(`monthly${args.args[3]}`).style.border = "none";
-    }
+    newOptions.plugins.title.text = `${args.args[2]} ${timeFrame}`;
   }
 
   useEffect(() => {
@@ -71,17 +53,26 @@ function Crypto(args) {
     }
 
     fetchCryp();
-  },[arg]);
+  },[arg, newOptions]);
     
   try {
     const times = data.map(t => (t.time));
     const closes = data.map(c => c.close);
 
+    // https://www.tutorialrepublic.com/faq/how-to-convert-a-unix-timestamp-to-time-in-javascript.php#:~:text=Answer%3A%20Use%20the%20new%20Date,%3A00%3A00%20UTC).
+    // used to convert unix time to date format
+    for (let i = 0; i < times.length; i++) {
+      times[i] = (new Date(times[i] * 1000)).toLocaleDateString("en-US");
+    }
+
+    
+    
+
     const d = {
       labels : times,
       datasets : [
         {
-          label: 'Bitcoin',
+          label: args.args[2],
           data: closes,
           fill : true,
           borderColor: 'rgba(75,192,1)',
@@ -89,17 +80,14 @@ function Crypto(args) {
         }
       ]
     };
-    options.plugins.title.text = `${args.args[2]}`;
-    // let opt = new options;
-    // opt.plugins.title.text = `${args.args[2]} ${args.args[1]}`;
     return (
       <div>
         <div className="grid grid-cols-3">
-          <button style={{border: 'solid  white'}} className="col-start-1" id={`weekly${args.args[3]}`} onClick={() => changeNumber(6, 'weekly')}>Weekly</button>
-          <button className="col-start-2" id={`monthly${args.args[3]}`} onClick={() => changeNumber(29, 'monthly')}>Monthly</button>
-          <button className="col-start-3" id={`ytd${args.args[3]}`} onClick={() => changeNumber(364, 'ytd')}>YTD</button>
+          <button className="col-start-1 hover:text-green-600" id={`weekly${args.args[3]}`} onClick={() => changeNumber(6, 'weekly')}>Weekly</button>
+          <button className="col-start-2 hover:text-green-600" id={`monthly${args.args[3]}`} onClick={() => changeNumber(29, 'monthly')}>Monthly</button>
+          <button className="col-start-3 hover:text-green-600" id={`ytd${args.args[3]}`} onClick={() => changeNumber(364, 'ytd')}>YTD</button>
         </div>
-        <Line data={d} options={options}/>
+        <Line data={d} options={newOptions}/>
       </div>
     );
   }
@@ -112,7 +100,7 @@ function Exchange(args) {
 
   useEffect(() => {
     async function fetchEx() {
-      const response = await axios.get('https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd.json');
+      const response = await axios.get(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${args.args[1]}.json`);
       setter(response.data);
     }
 
@@ -125,7 +113,7 @@ function Exchange(args) {
     const conversion = eval(args.args[0]);
 
     return (
-      <div dangerouslySetInnerHTML={{__html: '$ to ' + args.args[1] + ': ' + conversion}}></div>
+      <div dangerouslySetInnerHTML={{__html: args.args[2] +  ' -> $' + conversion}}></div>
     );
   }
   catch(error) {}
@@ -134,40 +122,40 @@ function Exchange(args) {
 
 function App() {
   return (
-    <div className="App grid grid-cols-3 grid-rows-5 h-screen w-auto bg-gray-600 overflow-y-hidden">
+    <div className="App flex flex-col h-screen w-auto bg-gray-600 md:h-max">
       <link href="/dist/output.css" rel="stylesheet"/>
-      {/* <div className="col-start-1 col-end-5 row-auto">Header</div> */}
       
-      
-      <div className="col-start-2  row-start-2 row-end-4 text-center justify-center items-center place-content-center border-r-2 mr-2">
-        <h1 className="text-4xl font flex-none ml-2 sm:text-xs ">Curreny Exchange</h1>
-        <ul className="grid grid-cols-1 grid-rows-2 gap-5 p-5 w-fit text-3xl sm:text-xs font-mono text-gray-100">
-          <li className="border-2 border-green-900 col-start-1"><Exchange args={["data.usd.eur", "&euro;"]}/></li>
-          <li className="border-2 border-green-900 col-start-1"><Exchange args={["data.usd.gbp", "&pound;"]}/></li>
-          <li className="border-2 border-green-900 col-start-1"><Exchange args={["data.usd.jpy", "&yen;"]}/></li>
-          <li className="border-2 border-green-900 col-start-1"><Exchange args={["data.usd.cny", "&#20803;"]}/></li>
-          <li className="border-2 border-green-900 col-start-1"><Exchange args={["data.usd.rub", "&#8381;"]}/></li>
-          <li className="border-2 border-green-900 col-start-1"><Exchange args={["data.usd.btc", "&#8383;"]}/></li>
-        </ul>
+      <div className="basis-1/6 text-center bg-gray-900 grid grid-cols-4 grid-rows-2 text-gray-100 text-3xl justify-center align-middle items-center h-1/4 sm:text-sm">
+        <h1 className="text-6xl font ml-2 text-gray-100 col-start-2 col-end-4 row-start-1 sm:text-sm">Crypto Exchange as of {(new Date().toISOString().substring(0,10))}</h1>
+        <div className=" col-start-1 row-start-2"><Exchange args={["data.btc.usd", "btc", "BTC"]}/></div>
+        <div className=" col-start-2 row-start-2"><Exchange args={["data.eth.usd", "eth", "ETH"]}/></div>
+        <div className=" col-start-3 row-start-2"><Exchange args={["data.ltc.usd", "ltc", "LTC"]}/></div>
+        <div className=" col-start-4 row-start-2"><Exchange args={["data.xrp.usd", "xrp", "XRP"]}/></div>
       </div>
       
 
+      <div className="grow basis-3/4 flex flex-wrap justify-center">
+        <div className="basis-1/3 text-gray-100">
+          <h1 className="text-4xl">BTC</h1>
+          <Crypto args={[6, 'Weekly', 'btc', 1]}/>
+        </div>
 
-      <div className="col-start-1 row-start-2 text-gray-100 mb-10">
-        <Crypto args={[6, 'Weekly', 'btc', 1]}/>
-      </div>
+        <div className="basis-1/3 text-gray-100">
+          <h1 className="text-4xl">Ethererum</h1>
+          <Crypto args={[6, 'Weekly', 'eth', 2]}/>
+        </div>
 
-      <div className="col-start-1 row-start-4 text-gray-100">
-        <Crypto args={[6, 'Weekly', 'eth', 2]}/>
-      </div>
+        <div className="basis-1/3 text-gray-100">
+          <h1 className="text-4xl">LiteCoin</h1>
+          <Crypto args={[6, 'Weekly', 'ltc', 4]}/>
+        </div>
 
-      <div className="col-start-3 row-start-2 text-gray-100">
-        <Crypto args={[6, 'Weekly', 'xrp', 3]}/>
+        <div className="basis-1/3 text-gray-100">
+          <h1 className="text-4xl">XRP</h1>
+          <Crypto args={[6, 'Weekly', 'xrp', 3]}/>
+        </div>
       </div>
-
-      <div className="col-start-3 row-start-4 text-gray-100">
-        <Crypto args={[6, 'Weekly', 'ltc', 4]}/>
-      </div>
+      
       
     </div>
 
