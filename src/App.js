@@ -113,7 +113,7 @@ function Exchange(args) {
   try {
     // https://stackoverflow.com/questions/14014371/how-do-i-convert-a-string-into-an-executable-line-of-code-in-javascript/70896574#70896574
     // where i got the idea to use eval() to display the currency symbol
-    const conversion = data[args.args[1]]['usd']
+    const conversion = data[args.args[0]]['usd'];
     
     return (
       <div dangerouslySetInnerHTML={{__html: args.args[1] +  ' -> $' + conversion}}></div>
