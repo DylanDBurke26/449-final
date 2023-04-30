@@ -1,7 +1,6 @@
-import { render } from '@testing-library/react';
 import axios from 'axios';
 import './App.css';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect} from 'react';
 
 import {Line} from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
@@ -45,10 +44,14 @@ function Crypto(args) {
     newOptions.plugins.title.text = `${args.args[2]} ${timeFrame}`;
   }
 
+  // https://www.knowledgehut.com/blog/web-development/node-environment-variables
+  // idea to get the api key at runtime 
+  let key = process.env.REACT_APP_CRYPTO;
+
   useEffect(() => {
     async function fetchCryp() {
       
-      const response = await axios.get(`https://min-api.cryptocompare.com/data/v2/histoday?fsym=${args.args[2]}&tsym=USD&limit=${arg}`);
+      const response = await axios.get(`https://min-api.cryptocompare.com/data/v2/histoday?fsym=${args.args[2]}&tsym=USD&limit=${arg}&api_key=${key}`);
       setter(response.data.Data.Data);
     }
 
@@ -100,7 +103,7 @@ function Exchange(args) {
 
   useEffect(() => {
     async function fetchEx() {
-      const response = await axios.get(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${args.args[1]}.json`);
+      const response = await axios.get(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${args.args[0]}.json`);
       setter(response.data);
     }
 
@@ -110,10 +113,10 @@ function Exchange(args) {
   try {
     // https://stackoverflow.com/questions/14014371/how-do-i-convert-a-string-into-an-executable-line-of-code-in-javascript/70896574#70896574
     // where i got the idea to use eval() to display the currency symbol
-    const conversion = eval(args.args[0]);
-
+    const conversion = data[args.args[1]]['usd']
+    
     return (
-      <div dangerouslySetInnerHTML={{__html: args.args[2] +  ' -> $' + conversion}}></div>
+      <div dangerouslySetInnerHTML={{__html: args.args[1] +  ' -> $' + conversion}}></div>
     );
   }
   catch(error) {}
@@ -127,10 +130,10 @@ function App() {
       
       <div className="basis-1/6 text-center bg-gray-900 grid grid-cols-4 grid-rows-2 text-gray-100 text-3xl justify-center align-middle items-center h-1/4 sm:text-sm">
         <h1 className="text-6xl font ml-2 text-gray-100 col-start-2 col-end-4 row-start-1 sm:text-sm">Crypto Exchange as of {(new Date().toISOString().substring(0,10))}</h1>
-        <div className=" col-start-1 row-start-2"><Exchange args={["data.btc.usd", "btc", "BTC"]}/></div>
-        <div className=" col-start-2 row-start-2"><Exchange args={["data.eth.usd", "eth", "ETH"]}/></div>
-        <div className=" col-start-3 row-start-2"><Exchange args={["data.ltc.usd", "ltc", "LTC"]}/></div>
-        <div className=" col-start-4 row-start-2"><Exchange args={["data.xrp.usd", "xrp", "XRP"]}/></div>
+        <div className=" col-start-1 row-start-2"><Exchange args={["btc", "BTC"]}/></div>
+        <div className=" col-start-2 row-start-2"><Exchange args={["eth", "ETH"]}/></div>
+        <div className=" col-start-3 row-start-2"><Exchange args={["ltc", "LTC"]}/></div>
+        <div className=" col-start-4 row-start-2"><Exchange args={["xrp", "XRP"]}/></div>
       </div>
       
 
