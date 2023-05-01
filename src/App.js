@@ -141,7 +141,7 @@ function App() {
         </div>
 
         <div className="basis-1/3 text-gray-100">
-          <h1 className="text-4xl">Ethererum</h1>
+          <h1 className="text-4xl">Ethereum</h1>
           <Crypto args={[6, 'Weekly', 'eth', 2]}/>
         </div>
 
