@@ -136,7 +136,7 @@ function App() {
 
       <div className="grow basis-3/4 flex flex-wrap justify-center">
         <div className="basis-1/3 text-gray-100">
-          <h1 className="text-4xl">BTC</h1>
+          <h1 className="text-4xl">Bitcoin</h1>
           <Crypto args={[6, 'Weekly', 'btc', 1]}/>
         </div>
 
